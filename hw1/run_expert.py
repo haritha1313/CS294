@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--max_timesteps", type=int)
     parser.add_argument('--num_rollouts', type=int, default=20,
                         help='Number of expert roll outs')
+    parser.add_argument("--save_data", type=bool, default=False)
     args = parser.parse_args()
 
     print('loading and building expert policy')
@@ -69,8 +70,16 @@ def main():
         expert_data = {'observations': np.array(observations),
                        'actions': np.array(actions)}
 
-        with open(os.path.join('expert_data', args.envname + '.pkl'), 'wb') as f:
-            pickle.dump(expert_data, f, pickle.HIGHEST_PROTOCOL)
+        if args.save_data:
+            filename = os.path.join('expert_data', args.envname + '.pkl')
+            if not os.path.exists(os.path.dirname(filename)):
+                try:
+                    os.makedirs(os.path.dirname(filename))
+                except OSError as exc:
+                    if exc.errno != errno.EEXIST:
+                        raise
+            with open(filename, 'wb') as f:
+                pickle.dump(expert_data, f, pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
     main()
